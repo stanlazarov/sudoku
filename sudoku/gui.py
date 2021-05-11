@@ -24,13 +24,14 @@ class Sudoku(object):
     selected = 0
 
     # works but make it toggleable with a button or something like that
-    check_for_mistakes = True
+    check_for_mistakes = False
 
     def __init__(self, starting_board):
         pygame.init()
 
         # initialize the board and make solved board
         self.board = starting_board[:]
+        self.starting = copy.deepcopy(self.board)
         self.solved = copy.deepcopy(self.board)
         solve(self.solved)
 
@@ -94,9 +95,10 @@ class Sudoku(object):
                 # draw square cells
                 pygame.draw.rect(screen, curr_color, ((self.node_margin + self.node_width) * col + self.node_margin, (self.node_margin + self.node_height) * row + self.node_margin, self.node_width, self.node_height))
 
+                curr_text_color = (88, 89, 88) if self.starting[row][col] else self.black
                 # draw numbers
                 if self.board[row][col] > 0:
-                    curr_number = self.numbers_font.render(str(self.board[row][col]), 50, self.black)
+                    curr_number = self.numbers_font.render(str(self.board[row][col]), 50, curr_text_color)
                     screen.blit(curr_number, ((self.node_margin + self.node_width) * col + self.node_margin + 25, (self.node_margin + self.node_height) * row + self.node_margin + 20))
 
     def draw_bold_lines(self, screen):
@@ -143,7 +145,7 @@ class Sudoku(object):
                     self.selected = xe, ye
 
                 # this was for testing the get_pos() function
-                print("{} -> {}".format(str(pos), str((xe, ye))))
+                #print("{} -> {}".format(str(pos), str((xe, ye))))
 
     def handle_number_event(self, key):
         """a function to handle keyboard click events"""
@@ -153,6 +155,7 @@ class Sudoku(object):
             sys.exit()
         # check if there isnt any selected cell to input a number in
         if not self.selected: return
+        if self.starting[self.selected[0]][self.selected[1]]: return
         # input the number in the board
         x, y = self.selected
         if key[pygame.K_1]:
