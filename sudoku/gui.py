@@ -29,7 +29,10 @@ class Sudoku(object):
     def __init__(self, starting_board):
         pygame.init()
 
-        # initialize the board and make solved board
+        # initialize a stack, saving every action, used for reversing
+        self.actions = []
+
+        # initialize the board, solved board and starting board
         self.board = starting_board[:]
         self.starting = copy.deepcopy(self.board)
         self.solved = copy.deepcopy(self.board)
@@ -39,6 +42,11 @@ class Sudoku(object):
         self.timer_font = pygame.font.Font(None, 35)
         self.numbers_font = pygame.font.Font(None, 40)
         self.buttons_font = pygame.font.Font(None, 30)
+
+    def reverse_action(self):
+        if len(self.actions) > 0:
+            x, y, val = self.actions.pop()
+            self.board[x][y] = val
 
     def format_time(self, seconds):
         """A function formatting time from seconds to HH:MM:SS"""
@@ -131,7 +139,7 @@ class Sudoku(object):
                 sys.exit()
             # call other function that handles keyboard input
             if event.type == pygame.KEYDOWN:
-                self.handle_number_event(pygame.key.get_pressed())
+                self.handle_keyboard_event(pygame.key.get_pressed())
             # mouse events
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
@@ -147,34 +155,46 @@ class Sudoku(object):
                 # this was for testing the get_pos() function
                 #print("{} -> {}".format(str(pos), str((xe, ye))))
 
-    def handle_number_event(self, key):
+    def handle_keyboard_event(self, key):
         """a function to handle keyboard click events"""
         # quit game if escape is pressed
         if key[pygame.K_ESCAPE]:
             pygame.quit()
             sys.exit()
+        if key[pygame.K_BACKSPACE]:
+            self.reverse_action()
         # check if there isnt any selected cell to input a number in
         if not self.selected: return
+        # cant change the starting number cells
         if self.starting[self.selected[0]][self.selected[1]]: return
         # input the number in the board
         x, y = self.selected
         if key[pygame.K_1]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 1
         if key[pygame.K_2]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 2
         if key[pygame.K_3]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 3
         if key[pygame.K_4]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 4
         if key[pygame.K_5]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 5
         if key[pygame.K_6]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 6
         if key[pygame.K_7]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 7
         if key[pygame.K_8]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 8
         if key[pygame.K_9]:
+            self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 9
 
     def game_loop(self):
@@ -193,7 +213,8 @@ class Sudoku(object):
 
             self.update_display(screen)
 
-
+#class Action(object):
+#    def __init__(self, x, y, from, to)
 
 if __name__ == '__main__':
     board = [[3, 0, 6, 5, 0, 8, 4, 0, 0],
