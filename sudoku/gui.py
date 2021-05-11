@@ -37,6 +37,7 @@ class Sudoku(object):
         # initialize fonts
         self.timer_font = pygame.font.Font(None, 35)
         self.numbers_font = pygame.font.Font(None, 40)
+        self.buttons_font = pygame.font.Font(None, 30)
 
     def format_time(self, seconds):
         """A function formatting time from seconds to HH:MM:SS"""
@@ -55,10 +56,26 @@ class Sudoku(object):
         x, y = pos
         return ((y - self.node_margin) // (self.node_height + self.node_margin), (x - self.node_margin) // (self.node_width + self.node_margin))
 
-    def update_display(self, screen, start_time):
+    def update_display(self, screen):
         """a function to visualize everything in the game window"""
         screen.fill(self.black)
 
+        # draw the square 9x9 board
+        self.draw_squares(screen)
+
+        # draw bolder lines for making 3x3 squares more visible
+        self.draw_bold_lines(screen)
+
+        # draw button for toggling auto correct
+        self.draw_button(screen)
+
+        # draw timer
+        self.draw_timer(screen)
+
+        pygame.display.update()
+
+    def draw_squares(self, screen):
+        """a function to draw the 9x9 grid"""
         for row in range(9):
             for col in range(9):
                 curr_color = self.white
@@ -82,17 +99,26 @@ class Sudoku(object):
                     curr_number = self.numbers_font.render(str(self.board[row][col]), 50, self.black)
                     screen.blit(curr_number, ((self.node_margin + self.node_width) * col + self.node_margin + 25, (self.node_margin + self.node_height) * row + self.node_margin + 20))
 
-        # draw bolder lines for making 3x3 squares more visible
+    def draw_bold_lines(self, screen):
+        """a function to draw the bolder lines for making 3x3 squares more visible"""
         pygame.draw.line(screen, self.black, ((self.node_width + self.node_margin) * 3, 0), ((self.node_width + self.node_margin) * 3, (self.node_height + self.node_margin) * 9), self.line_width)
         pygame.draw.line(screen, self.black, ((self.node_width + self.node_margin) * 6, 0), ((self.node_width + self.node_margin) * 6, (self.node_height + self.node_margin) * 9), self.line_width)
         pygame.draw.line(screen, self.black, (0, (self.node_height + self.node_margin) * 3), ((self.node_width + self.node_margin) * 9, (self.node_height + self.node_margin) * 3), self.line_width)
         pygame.draw.line(screen, self.black, (0, (self.node_height + self.node_margin) * 6), ((self.node_width + self.node_margin) * 9, (self.node_height + self.node_margin) * 6), self.line_width)
 
-        # set timer
-        timer = self.timer_font.render("Time: {}".format(self.format_time(time.time() - start_time)), 50, self.white)
+    def draw_timer(self, screen):
+        """a function to set and draw the timer """
+        timer = self.timer_font.render("Time: {}".format(self.format_time(time.time() - self.start_time)), 50, self.white)
         screen.blit(timer, (((self.node_width + self.node_margin) * 6 + self.node_margin * 10 - 5), (self.node_height + self.node_margin) * 9 + self.node_margin * 10 - 5))
 
-        pygame.display.update()
+    def draw_button(self, screen):
+        """a function to draw the button to toggle mistake checker and the label with it"""
+        #pygame.draw.rect(screen, self.wrong_color, ((self.node_margin + self.node_width) * 3 + self.node_margin  + 17, (self.node_margin + self.node_height) * 9 + self.node_margin + 15, self.node_width // 2, self.node_height // 2))
+        curr_color = self.selected_color if self.check_for_mistakes else self.selected_rowcol_color
+        pygame.draw.circle(screen, curr_color, ((self.node_margin + self.node_width) * 0 + self.node_margin  + 33, (self.node_margin + self.node_height) * 9 + self.node_margin + 30), 25)
+
+        check_mistakes_str = self.buttons_font.render("Check for mistakes", 40, self.white)
+        screen.blit(check_mistakes_str, ((self.node_margin + self.node_width) * 1 , (self.node_margin + self.node_height) * 9 + self.node_margin + 20))
 
     def handle_events(self):
         """a function to handle all the events"""
@@ -104,15 +130,20 @@ class Sudoku(object):
             # call other function that handles keyboard input
             if event.type == pygame.KEYDOWN:
                 self.handle_number_event(pygame.key.get_pressed())
-            # make clicked cell selected
+            # mouse events
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
                 xe, ye = self.get_index_from_position(pos)
-                # check if mouse is clicked on a cell on the board
-                if 0 <= xe <= 8 and 0 <= ye <= 8:
+
+                # check if mouse clicked the button to toggle mistake checker
+                if xe == 9 and ye == 0:
+                    self.check_for_mistakes = not self.check_for_mistakes
+                # check if mouse is clicked on a cell on the board, if yes mark it as selected
+                elif 0 <= xe <= 8 and 0 <= ye <= 8:
                     self.selected = xe, ye
+
                 # this was for testing the get_pos() function
-                #print("{} -> {}".format(str(pos), str(self.selected)))
+                print("{} -> {}".format(str(pos), str((xe, ye))))
 
     def handle_number_event(self, key):
         """a function to handle keyboard click events"""
@@ -151,13 +182,13 @@ class Sudoku(object):
         screen.fill(self.black)
 
         # starting time
-        start_time = time.time()
+        self.start_time = time.time()
 
         # game loop
         while True:
             self.handle_events()
 
-            self.update_display(screen, start_time)
+            self.update_display(screen)
 
 
 
