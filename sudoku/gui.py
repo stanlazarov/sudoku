@@ -2,6 +2,7 @@ import sys
 import pygame
 import time
 import copy
+import random
 from sudoku.solver import solve
 from pygame.constants import K_ESCAPE
 
@@ -10,13 +11,14 @@ class Sudoku(object):
     node_height = 63
     node_width = 63
     node_margin = 3
-    size = width, height = (node_width + node_margin) * 9 + node_margin, (node_height + node_margin) * 10 + node_margin
+    size = width, height = (node_width + node_margin) * 9 + node_margin, (node_height + node_margin) * 11 + node_margin
     line_width = 8
 
     # colors
     black = 0, 0, 0
     white = 255, 255, 255
     light_green = 164, 235, 176
+    light_yellow = 255, 253, 143
     wrong_color = 240, 114, 105
     selected_rowcol_color = 193, 212, 230
     selected_color = 44, 129, 209
@@ -49,6 +51,13 @@ class Sudoku(object):
         if len(self.actions) > 0:
             x, y, val = self.actions.pop()
             self.board[x][y] = val
+
+    def show_hint(self):
+        if self.board == self.solved: return
+        x, y = random.randint(0, 8), random.randint(0, 8)
+        while self.board[x][y] or self.starting[x][y]:
+            x, y = random.randint(0, 8), random.randint(0, 8)
+        self.board[x][y] = self.solved[x][y]
 
     def format_time(self, seconds):
         """A function formatting time from seconds to HH:MM:SS"""
@@ -137,6 +146,11 @@ class Sudoku(object):
         # label for reverse button
         screen.blit(self.buttons_font.render("Undo", 40, self.white), ((self.node_margin + self.node_width) * 4 , (self.node_margin + self.node_height) * 9 + self.node_margin + 22))
 
+        # button for hint
+        pygame.draw.circle(screen, self.light_yellow, ((self.node_margin + self.node_width) * 0 + self.node_margin  + 31, (self.node_margin + self.node_height) * 10 + self.node_margin + 31), 25)
+        # label hint button
+        screen.blit(self.buttons_font.render("Hint", 40, self.white), ((self.node_margin + self.node_width) * 1 , (self.node_margin + self.node_height) * 10 + self.node_margin + 22))
+
     def handle_events(self):
         """a function to handle all the events"""
         for event in pygame.event.get():
@@ -152,12 +166,15 @@ class Sudoku(object):
                 pos = pygame.mouse.get_pos()
                 xe, ye = self.get_index_from_position(pos)
 
-                # check if mouse clicked the button to toggle mistake checker
-                if xe == 9 and ye == 3:
-                    self.undo_action()
-                # check if mouse clicked the button to toggle mistake checker
+                # check if mouse clicked the mistake checker button
                 if xe == 9 and ye == 0:
                     self.check_for_mistakes = not self.check_for_mistakes
+                # check if mouse clicked the undo button
+                if xe == 9 and ye == 3:
+                    self.undo_action()
+                # check if mouse clicked the hint button
+                if xe == 10 and ye == 0:
+                    self.show_hint()
                 # check if mouse is clicked on a cell on the board, if yes mark it as selected
                 elif 0 <= xe <= 8 and 0 <= ye <= 8:
                     self.selected = xe, ye

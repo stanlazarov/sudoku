@@ -11,12 +11,12 @@ This is a simple sudoku game app using pygame for the GUI.
 - The game tracks your time from the beginning
 - You can clear cells with backspace
 - You can undo actions with a button
+- You can click the show hint button to fill 1 cell with the right number
 
 ### Todo
 
 - Make a button for the game to visualize solving the board (with backtracking)
-- Make a button to show a hint (fill 1 cell with the right number)
-- Refactor some of the code
+- Make a win screen
 
 ### Requirements
 
