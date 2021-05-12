@@ -17,6 +17,7 @@ class Sudoku(object):
     # colors
     black = 0, 0, 0
     white = 255, 255, 255
+    green = 0, 201, 0
     light_green = 164, 235, 176
     light_yellow = 255, 253, 143
     wrong_color = 240, 114, 105
@@ -45,6 +46,7 @@ class Sudoku(object):
         self.timer_font = pygame.font.Font(None, 35)
         self.numbers_font = pygame.font.Font(None, 40)
         self.buttons_font = pygame.font.Font(None, 30)
+        self.big_font = pygame.font.Font(None, 100)
 
     def undo_action(self):
         """a function to reverse actions"""
@@ -91,6 +93,10 @@ class Sudoku(object):
 
         # draw timer
         self.draw_timer(screen)
+
+        # visualize that the board is solved if it is
+        if self.board == self.solved:
+                screen.blit(self.big_font.render("Solved", 40, self.green), ((self.node_margin + self.node_width) * 3 - 10 , (self.node_margin + self.node_height) * 4 + self.node_margin + 5))
 
         pygame.display.update()
 
