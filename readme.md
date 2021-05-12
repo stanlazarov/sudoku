@@ -9,12 +9,12 @@ This is a simple sudoku game app using pygame for the GUI.
 - When clicking on a cell, its row and column are highlighted
 - Checking for mistakes is toggleable with a button. If you entered a wrong number in a cell it changes color to red
 - The game tracks your time from the beginning
-- You can reverse your actions with backspace
+- You can clear cells with backspace
+- You can undo actions with a button
 
 ### Todo
 
 - Make a button for the game to visualize solving the board (with backtracking)
-- Make a button to reverse actions
 - Make a button to show a hint (fill 1 cell with the right number)
 - Refactor some of the code
 

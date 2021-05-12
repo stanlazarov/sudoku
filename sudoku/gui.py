@@ -16,6 +16,7 @@ class Sudoku(object):
     # colors
     black = 0, 0, 0
     white = 255, 255, 255
+    light_green = 164, 235, 176
     wrong_color = 240, 114, 105
     selected_rowcol_color = 193, 212, 230
     selected_color = 44, 129, 209
@@ -43,7 +44,8 @@ class Sudoku(object):
         self.numbers_font = pygame.font.Font(None, 40)
         self.buttons_font = pygame.font.Font(None, 30)
 
-    def reverse_action(self):
+    def undo_action(self):
+        """a function to reverse actions"""
         if len(self.actions) > 0:
             x, y, val = self.actions.pop()
             self.board[x][y] = val
@@ -76,7 +78,7 @@ class Sudoku(object):
         self.draw_bold_lines(screen)
 
         # draw button for toggling auto correct
-        self.draw_button(screen)
+        self.draw_buttons(screen)
 
         # draw timer
         self.draw_timer(screen)
@@ -121,14 +123,19 @@ class Sudoku(object):
         timer = self.timer_font.render("Time: {}".format(self.format_time(time.time() - self.start_time)), 50, self.white)
         screen.blit(timer, (((self.node_width + self.node_margin) * 6 + self.node_margin * 10 - 5), (self.node_height + self.node_margin) * 9 + self.node_margin * 10 - 5))
 
-    def draw_button(self, screen):
+    def draw_buttons(self, screen):
         """a function to draw the button to toggle mistake checker and the label with it"""
-        #pygame.draw.rect(screen, self.wrong_color, ((self.node_margin + self.node_width) * 3 + self.node_margin  + 17, (self.node_margin + self.node_height) * 9 + self.node_margin + 15, self.node_width // 2, self.node_height // 2))
+        # check for mistakes button
         curr_color = self.selected_color if self.check_for_mistakes else self.selected_rowcol_color
-        pygame.draw.circle(screen, curr_color, ((self.node_margin + self.node_width) * 0 + self.node_margin  + 33, (self.node_margin + self.node_height) * 9 + self.node_margin + 30), 25)
+        pygame.draw.circle(screen, curr_color, ((self.node_margin + self.node_width) * 0 + self.node_margin  + 31, (self.node_margin + self.node_height) * 9 + self.node_margin + 31), 25)
+        # label for check mistakes button
+        screen.blit(self.buttons_font.render("Check for", 40, self.white), ((self.node_margin + self.node_width) * 1 , (self.node_margin + self.node_height) * 9 + self.node_margin + 10))
+        screen.blit(self.buttons_font.render("mistakes", 40, self.white), ((self.node_margin + self.node_width) * 1 + 2, (self.node_margin + self.node_height) * 9 + self.node_margin + 30))
 
-        check_mistakes_str = self.buttons_font.render("Check for mistakes", 40, self.white)
-        screen.blit(check_mistakes_str, ((self.node_margin + self.node_width) * 1 , (self.node_margin + self.node_height) * 9 + self.node_margin + 20))
+        # button for reversing actions
+        pygame.draw.circle(screen, self.light_green, ((self.node_margin + self.node_width) * 3 + self.node_margin  + 31, (self.node_margin + self.node_height) * 9 + self.node_margin + 31), 25)
+        # label for reverse button
+        screen.blit(self.buttons_font.render("Undo", 40, self.white), ((self.node_margin + self.node_width) * 4 , (self.node_margin + self.node_height) * 9 + self.node_margin + 22))
 
     def handle_events(self):
         """a function to handle all the events"""
@@ -146,6 +153,9 @@ class Sudoku(object):
                 xe, ye = self.get_index_from_position(pos)
 
                 # check if mouse clicked the button to toggle mistake checker
+                if xe == 9 and ye == 3:
+                    self.undo_action()
+                # check if mouse clicked the button to toggle mistake checker
                 if xe == 9 and ye == 0:
                     self.check_for_mistakes = not self.check_for_mistakes
                 # check if mouse is clicked on a cell on the board, if yes mark it as selected
@@ -161,14 +171,20 @@ class Sudoku(object):
         if key[pygame.K_ESCAPE]:
             pygame.quit()
             sys.exit()
-        if key[pygame.K_BACKSPACE]:
-            self.reverse_action()
+
         # check if there isnt any selected cell to input a number in
         if not self.selected: return
         # cant change the starting number cells
         if self.starting[self.selected[0]][self.selected[1]]: return
-        # input the number in the board
+
         x, y = self.selected
+
+        # clear cell
+        if key[pygame.K_BACKSPACE]:
+            self.actions.append((x, y, self.board[x][y]))
+            self.board[x][y] = 0
+
+        # input the number in the board
         if key[pygame.K_1]:
             self.actions.append((x, y, self.board[x][y]))
             self.board[x][y] = 1
@@ -213,8 +229,6 @@ class Sudoku(object):
 
             self.update_display(screen)
 
-#class Action(object):
-#    def __init__(self, x, y, from, to)
 
 if __name__ == '__main__':
     board = [[3, 0, 6, 5, 0, 8, 4, 0, 0],
