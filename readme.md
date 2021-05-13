@@ -15,7 +15,8 @@ This is a simple sudoku game app using pygame for the GUI.
 
 ### Todo
 
-- Make a button for the game to visualize solving the board (with backtracking)
+- Visualize solving 1 by 1 with backtracking
+- Add more boards
 
 ### Requirements
 

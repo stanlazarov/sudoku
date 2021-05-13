@@ -20,6 +20,7 @@ class Sudoku(object):
     green = 0, 201, 0
     light_green = 164, 235, 176
     light_yellow = 255, 253, 143
+    light_purple = 215, 84, 255
     wrong_color = 240, 114, 105
     selected_rowcol_color = 193, 212, 230
     selected_color = 44, 129, 209
@@ -59,6 +60,7 @@ class Sudoku(object):
         x, y = random.randint(0, 8), random.randint(0, 8)
         while self.board[x][y] or self.starting[x][y]:
             x, y = random.randint(0, 8), random.randint(0, 8)
+        self.actions.append((x, y, self.board[x][y]))
         self.board[x][y] = self.solved[x][y]
 
     def format_time(self, seconds):
@@ -140,22 +142,24 @@ class Sudoku(object):
 
     def draw_buttons(self, screen):
         """a function to draw the button to toggle mistake checker and the label with it"""
-        # check for mistakes button
+        # button and label for checking for mistakes
         curr_color = self.selected_color if self.check_for_mistakes else self.selected_rowcol_color
         pygame.draw.circle(screen, curr_color, ((self.node_margin + self.node_width) * 0 + self.node_margin  + 31, (self.node_margin + self.node_height) * 9 + self.node_margin + 31), 25)
-        # label for check mistakes button
         screen.blit(self.buttons_font.render("Check for", 40, self.white), ((self.node_margin + self.node_width) * 1 , (self.node_margin + self.node_height) * 9 + self.node_margin + 10))
         screen.blit(self.buttons_font.render("mistakes", 40, self.white), ((self.node_margin + self.node_width) * 1 + 2, (self.node_margin + self.node_height) * 9 + self.node_margin + 30))
 
-        # button for reversing actions
+        # button and label for reversing actions
         pygame.draw.circle(screen, self.light_green, ((self.node_margin + self.node_width) * 3 + self.node_margin  + 31, (self.node_margin + self.node_height) * 9 + self.node_margin + 31), 25)
         # label for reverse button
         screen.blit(self.buttons_font.render("Undo", 40, self.white), ((self.node_margin + self.node_width) * 4 , (self.node_margin + self.node_height) * 9 + self.node_margin + 22))
 
-        # button for hint
+        # button and label for hint
         pygame.draw.circle(screen, self.light_yellow, ((self.node_margin + self.node_width) * 0 + self.node_margin  + 31, (self.node_margin + self.node_height) * 10 + self.node_margin + 31), 25)
-        # label hint button
         screen.blit(self.buttons_font.render("Hint", 40, self.white), ((self.node_margin + self.node_width) * 1 , (self.node_margin + self.node_height) * 10 + self.node_margin + 22))
+
+        # button and label for hint
+        pygame.draw.circle(screen, self.light_purple, ((self.node_margin + self.node_width) * 3 + self.node_margin  + 31, (self.node_margin + self.node_height) * 10 + self.node_margin + 31), 25)
+        screen.blit(self.buttons_font.render("Solve", 40, self.white), ((self.node_margin + self.node_width) * 4 , (self.node_margin + self.node_height) * 10 + self.node_margin + 22))
 
     def handle_events(self):
         """a function to handle all the events"""
@@ -181,6 +185,9 @@ class Sudoku(object):
                 # check if mouse clicked the hint button
                 if xe == 10 and ye == 0:
                     self.show_hint()
+                # check if mouse clicked the solve button
+                if xe == 10 and ye == 3:
+                    solve(self.board)
                 # check if mouse is clicked on a cell on the board, if yes mark it as selected
                 elif 0 <= xe <= 8 and 0 <= ye <= 8:
                     self.selected = xe, ye
